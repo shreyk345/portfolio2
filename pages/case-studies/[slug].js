@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 import Navbar from '../../components/Navbar'
+import PacManFooter from '../../components/PacManFooter'
 import { LetterTile } from '../../components/Tile'
 import { getAllSlugs, getCaseStudy } from '../../lib/case-studies'
 
@@ -315,6 +316,8 @@ export default function CaseStudyPage({ caseStudy }) {
           </div>
         </div>
       </div>
+
+      <PacManFooter />
 
       {/* Image zoom modal */}
       {zoomImg && <ImageZoom src={zoomImg.src} alt={zoomImg.alt} onClose={() => setZoomImg(null)} />}
