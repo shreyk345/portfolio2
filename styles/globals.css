@@ -54,6 +54,7 @@ body {
   color: var(--text);
   font-family: 'Inter', sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: clip;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   margin: 0;
@@ -69,6 +70,9 @@ a { color: inherit; }
     height:100vh;
     min-height:600px;
     overflow:hidden;
+  }
+  @media (max-width:700px){
+    .hero{ height:68vh; min-height:420px; }
   }
 
   /* ── Curved headline ──────────────────────────────────── */
@@ -387,7 +391,7 @@ a { color: inherit; }
     text-align:left;
   }
   .work-row:hover .work-title{ color: var(--row-accent, var(--accent)); }
-  .work-desc{ font-size:15px; color:var(--muted); max-width:48ch; margin:0; text-align:left; }
+  .work-desc{ font-size:15px; color:var(--muted); margin:0; text-align:left; }
 
 /* ══════════════════════════════════════════════════════
    PLAY — infinite canvas + lightbox
@@ -614,6 +618,10 @@ a { color: inherit; }
   }
   .pm-heading-row > nav{ justify-self:end; }
   .pm-topbar-nav{ display:flex; align-items:center; gap:26px; flex-shrink:0; }
+  @media (max-width:700px){
+    .pm-heading-row{ grid-template-columns: 1fr auto; }
+    .pm-topbar-nav{ display:none; }
+  }
   .pm-goback{
     color: #EFF0E9;
     font-family:'Inter', sans-serif; font-size:13px; letter-spacing:.12em; text-transform:uppercase;
@@ -640,6 +648,16 @@ a { color: inherit; }
     font-size:13px; letter-spacing:.04em; text-transform:uppercase;
     color: rgba(239,240,233,.62);
     margin:0;
+  }
+  .pm-sub-mobile{ display:none; }
+  .pm-l3-mobile{ display:none; }
+  @media (max-width:700px){
+    .pm-topbar-nav{ display:none; }
+    .pm-scoreboard-frame{ grid-column: 3; justify-self: end; }
+    .pm-sub-desktop{ display:none; }
+    .pm-sub-mobile{ display:block; }
+    .pm-l3-desktop{ display:none; }
+    .pm-l3-mobile{ display:block; }
   }
   .pm-scoreboard-frame{
     background: var(--accent-2);
@@ -788,6 +806,32 @@ a { color: inherit; }
   border-radius: 10px;
   margin: 1.6em 0;
   display: block;
+}
+
+.case-study-body video,
+.case-study-body iframe {
+  max-width: 100%;
+  border-radius: 10px;
+  display: block;
+}
+
+.case-study-body figure {
+  max-width: 100%;
+  margin: 0;
+}
+
+.case-study-body table {
+  max-width: 100%;
+  display: block;
+  overflow-x: auto;
+}
+
+/* Author-written layout wrappers (grids, flex columns for side-by-side
+   media) must never be able to push the page wider than the viewport,
+   regardless of what their own inline styles specify. */
+.case-study-body > div,
+.case-study-body div[style] {
+  max-width: 100%;
 }
 
 .case-study-body strong { font-weight: 700; }

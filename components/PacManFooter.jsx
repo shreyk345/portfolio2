@@ -262,6 +262,57 @@ export default function PacManFooter() {
     }
     window.addEventListener('keydown', onKeyDown)
 
+    // Touch controls — mobile has no keyboard, so tapping the stage starts/
+    // restarts the game (mirrors spacebar) and swiping sets the desired
+    // direction (mirrors the arrow keys). Both listen on the stage/canvas
+    // specifically so scrolling the rest of the page is unaffected.
+    const stageEl = stageRef.current
+    let touchStartX = 0, touchStartY = 0, touchStartTime = 0
+
+    function onTouchStart(e) {
+      if (!localFooterVisible) return
+      const t = e.touches[0]
+      touchStartX = t.clientX
+      touchStartY = t.clientY
+      touchStartTime = Date.now()
+    }
+
+    function onTouchEnd(e) {
+      if (!localFooterVisible) return
+      const t = e.changedTouches[0]
+      const dx = t.clientX - touchStartX
+      const dy = t.clientY - touchStartY
+      const dist = Math.hypot(dx, dy)
+      const elapsed = Date.now() - touchStartTime
+
+      // A quick tap with minimal movement starts/restarts the game.
+      if (dist < 12 && elapsed < 400) {
+        if (gameState === 'idle') {
+          gameState = 'playing'
+          setShowScoreboard(true)
+        } else if (gameState === 'won' || gameState === 'lost') {
+          resetGame()
+          gameState = 'playing'
+          setShowScoreboard(true)
+        }
+        return
+      }
+
+      // Otherwise, treat it as a swipe: whichever axis moved further sets
+      // the direction, same grid deltas the keyboard handler uses.
+      if (gameState !== 'playing' || dist < 20) return
+      if (Math.abs(dx) > Math.abs(dy)) {
+        desiredDir = dx > 0 ? { r: 0, c: 1 } : { r: 0, c: -1 }
+      } else {
+        desiredDir = dy > 0 ? { r: 1, c: 0 } : { r: -1, c: 0 }
+      }
+    }
+
+    if (stageEl) {
+      stageEl.addEventListener('touchstart', onTouchStart, { passive: true })
+      stageEl.addEventListener('touchend', onTouchEnd, { passive: true })
+    }
+
     const footerEl = footerRef.current
     const wrapEl = wrapRef.current
 
@@ -285,6 +336,10 @@ export default function PacManFooter() {
     return () => {
       window.removeEventListener('resize', onResize)
       window.removeEventListener('keydown', onKeyDown)
+      if (stageEl) {
+        stageEl.removeEventListener('touchstart', onTouchStart)
+        stageEl.removeEventListener('touchend', onTouchEnd)
+      }
       clearTimeout(resizeT)
       clearInterval(playerInterval)
       clearInterval(ghostInterval)
@@ -301,7 +356,8 @@ export default function PacManFooter() {
             <p className="pm-heading">
               Leaving so <span className="pm-pink">soon</span>?
             </p>
-            <p className="pm-sub">press the spacebar to help me through my day!</p>
+            <p className="pm-sub pm-sub-desktop">press the spacebar to help me through my day!</p>
+            <p className="pm-sub pm-sub-mobile">tap on the screen to help me through my day!</p>
           </div>
           <div className={`pm-scoreboard-frame pixel-notch${showScoreboard ? ' show' : ''}`} ref={scoreboardRef}>
             <div className="pm-scoreboard-inner pixel-notch">
@@ -324,13 +380,15 @@ export default function PacManFooter() {
                   <>
                     <div className="l1">YOU WIN! NAP TIME</div>
                     <div className="l2">zzzzzz</div>
-                    <div className="l3">press spacebar to play again</div>
+                    <div className="l3 pm-l3-desktop">press spacebar to play again</div>
+                    <div className="l3 pm-l3-mobile">tap to play again</div>
                   </>
                 ) : (
                   <>
                     <div className="l1">CAUGHT!</div>
                     <div className="l2">it&#8217;s not nap time yet...</div>
-                    <div className="l3">press spacebar to play again</div>
+                    <div className="l3 pm-l3-desktop">press spacebar to play again</div>
+                    <div className="l3 pm-l3-mobile">tap to play again</div>
                   </>
                 )}
               </div>

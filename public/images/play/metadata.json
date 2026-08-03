@@ -70,5 +70,9 @@
   "kaleidoscope": {
     "title": "Kaleidoscope",
     "description": "Kaleidoscope is the first piece I made for VIS 142 using Pygame on Python."
+  },
+  "beach": {
+    "title": "Bioluminescence",
+    "description": "As part of my program at MAVERiC Studio, we created a world where you can step into a glowing, ethereal cave where crystals pulse with light, and emerge onto a moonlit beach where the sand itself sparkles with each step. Our project combined interactive visuals, soundscapes, and real-time interactivity to craft a deeply immersive VR experience on Meta Quest. Look it up at: https://vrchat.com/home/launch?worldId=wrld_14c2db92-0c69-4a5a-a18d-25b11bec3d74."
   }
 }

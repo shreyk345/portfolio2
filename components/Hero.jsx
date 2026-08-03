@@ -295,9 +295,16 @@ export default function Hero() {
       if (!dome || !wrap) return
       const rect = dome.getBoundingClientRect()
       const domeRadius = rect.width / 2
-      const gap1 = Math.max(85, domeRadius * 0.15)
+      // How much room actually exists on each side of the centered dome —
+      // the arc's extra radius (gap) must stay within this or its start/
+      // end points push past the edge of the screen. On desktop there's
+      // plenty of margin so the normal minimums apply; on narrow mobile
+      // viewports this caps the gap down so "hi, i'm" never gets clipped.
+      const availableMargin = Math.max(0, (window.innerWidth - rect.width) / 2)
+      const safeMargin = availableMargin - 45
+      const gap1 = Math.min(Math.max(85, domeRadius * 0.15), safeMargin)
       const gap2 = Math.max(2, domeRadius * 0.003)
-      const gapName = Math.max(100, domeRadius * 0.18)
+      const gapName = Math.min(Math.max(100, domeRadius * 0.18), safeMargin)
       const r1 = domeRadius + gap1
       const r2 = domeRadius + gap2
       const rName = domeRadius + gapName
@@ -320,10 +327,10 @@ export default function Hero() {
       const subtitleSize = Math.max(12, Math.min(18, domeRadius * 0.032))
       subTextRef.current.style.fontSize = subtitleSize + 'px'
 
-      buildNameTiles(domeRadius, rect.width)
+      buildNameTiles(domeRadius, rect.width, gap1, gapName)
     }
 
-    function buildNameTiles(domeRadius, domeWidth) {
+    function buildNameTiles(domeRadius, domeWidth, gap1, gapName) {
       if (userMovedTilesRef.current) return
       const word = 'SHREYA'
       nameTileCleanupsRef.current.forEach((fn) => fn())
@@ -348,11 +355,9 @@ export default function Hero() {
       arcTextPathRef.current.setAttribute('startOffset', startLen)
 
       const cx = domeWidth / 2
-      const gap1 = Math.max(85, domeRadius * 0.15)
       const r1 = domeRadius + gap1
       const pathName = arcPathNameRef.current
       const totalLenName = pathName.getTotalLength()
-      const gapName = Math.max(100, domeRadius * 0.18)
       const rName = domeRadius + gapName
 
       const hiImEndLen = Math.min(totalLen, startLen + hiImLen)

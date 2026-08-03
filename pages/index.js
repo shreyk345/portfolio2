@@ -5,7 +5,7 @@ import WorkSection from '../components/WorkSection'
 import PacManFooter from '../components/PacManFooter'
 import { getAllCaseStudies } from '../lib/case-studies'
 
-export default function Home({ featuredCaseStudies }) {
+export default function Home({ allCaseStudies }) {
   return (
     <>
       <Head>
@@ -13,16 +13,14 @@ export default function Home({ featuredCaseStudies }) {
       </Head>
       <Navbar />
       <Hero />
-      <WorkSection caseStudies={featuredCaseStudies} />
+      <WorkSection caseStudies={allCaseStudies} />
       <PacManFooter />
     </>
   )
 }
 
 export async function getStaticProps() {
-  const all = getAllCaseStudies()
-  const featured = all.filter((cs) => cs.featured).slice(0, 3)
-  const featuredCaseStudies = featured.length >= 3 ? featured : all.slice(0, 3)
+  const allCaseStudies = getAllCaseStudies()
 
-  return { props: { featuredCaseStudies } }
+  return { props: { allCaseStudies } }
 }

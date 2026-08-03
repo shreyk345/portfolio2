@@ -1,6 +1,6 @@
 ---
 title: "Beli Feature Intro: Eaters Like You"
-date: "2026-07-01"
+date: "2026-04-01"
 thumbnail: "/projects/beli/beli_thumbnail.png"
 description: "Redesigning a food-review app by introducing a new feature that accomodates users with dietary restrictions better."
 featured: true

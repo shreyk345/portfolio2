@@ -153,6 +153,18 @@ export default function Navbar() {
           left: auto;
           right: 18px;
         }
+        @media (max-width: 700px) {
+          .nav-tile { width: 20px; height: 20px; }
+          .nav-tile .tile-letter { font-size: 11px; }
+          .nav-tile-icon { width: 26px; height: 26px; }
+          .nav-tile-icon .tile-icon { width: 60%; height: 60%; }
+          .site-nav { gap: 12px; left: 12px; bottom: 18px; }
+          .site-nav-right {
+            left: auto; right: 12px;
+            top: 20px; bottom: auto;
+          }
+          .site-logo img { height: 24px; }
+        }
         .nav-link {
           display: flex;
           text-decoration: none;
