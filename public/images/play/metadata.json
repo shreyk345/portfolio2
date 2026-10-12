@@ -43,9 +43,9 @@
     "title": "Shanaya",
     "description": "Shanaya is a Kannada name that means First Ray of the Sun. When I created this piece, I was very interested in pop art, specifically pop art faces as they have a certain characterisation that I tried to capture in this work. I made this piece on November 1st, when my home state (Karnataka) celebrates its official recognition as a state of India, so the colors (red and yellow) are inspired by the Kannada flag. Shanaya is my imagining of Karnataka as a woman, and the background is reminiscent of Sun’s rays, representing her divinity. It’s a square work of 2048*2048 px."
   },
-  "postcard final": {
-    "title": "The Next Journey",
-    "description": "When COVID-19 began to affect the daily lives of people, Indian railway communication lines really suffered as they were not able to cope with the required protocols to maintain the railways.  So many people lost their only means of travel, and thousands of jobs across India were lost in the process. I wanted this postcard to signify how COVID affected the number of people using railways. For the piece, I used watercolors , in a muted palette- light and dark grey, different shades of blue, red and viridian green for the windows- because I wanted the tone to be slightly melancholic, contrasted by the brightness of the sky outside the station. The inside of the train is also warm and inviting, enticing the figure to step inside and travel."
+  "Ajji": {
+    "title": "Portrait of my Grandmother",
+    "description": "This is a portrait I made of my grandmother right after she passed away after a yearlong battle with cancer. I wanted to capture the bright energy and pure soul she reflected, in front of her curtains at home the way I remember her best."
   },
   "Spiraling": {
     "title": "Spiraling",
@@ -54,25 +54,5 @@
   "IMG_5421": {
     "title": "Snakes In Our House",
     "description": "This visual piece is built from a database of serial killers and their victims. The piece reminds everyone that behind the stories of these serial killers, is an endless count of real people whose lives are torn apart by particularly cruel acts of violence."
-  },
-  "IMG_2685": {
-    "title": "Knife Painting",
-    "description": "Bibliophile is a knife painting I created using acrylic on canvas. I wanted to represent one of my favourite hobbies, the best way to spend time- with coffee and long books. Painting my habit of reading helped me combine two of my passions- art and stories."
-  },
-  "IMG_1731": {
-    "title": "Fortune Boxes",
-    "description": "Fortune Boxes is a piece inspired by a conversation my psychology teacher and I had about fate and beliefs in class. The concept behind the piece is a box made of tarot cards that may be able to predict futures- I used Matt Hughes’s Ethereal Tarot Visions set as a reference. There are four brightly colored boxes set against a dark, empty backdrop, which makes you want to open them; two are partially ajar, daring you to take a closer look and perhaps discover your fate."
-  },
-  "IMG_1818": {
-    "title": "My Desk",
-    "description": "Art is one of my daily activities. I’ve cultivated it as a hobby for a long time, and ever since I started making a portfolio, there are almost always art materials and half finished pieces on my desk. My Desk is thus an observational piece I created midway through finishing another artwork, capturing what my desk looks like during the process of creation- my art supplies, the ever-present coffee mug, my headphones for music and my laptop for reference images."
-  },
-  "kaleidoscope": {
-    "title": "Kaleidoscope",
-    "description": "Kaleidoscope is the first piece I made for VIS 142 using Pygame on Python."
-  },
-  "beach": {
-    "title": "Bioluminescence",
-    "description": "As part of my program at MAVERiC Studio, we created a world where you can step into a glowing, ethereal cave where crystals pulse with light, and emerge onto a moonlit beach where the sand itself sparkles with each step. Our project combined interactive visuals, soundscapes, and real-time interactivity to craft a deeply immersive VR experience on Meta Quest. Look it up at: https://vrchat.com/home/launch?worldId=wrld_14c2db92-0c69-4a5a-a18d-25b11bec3d74."
   }
 }

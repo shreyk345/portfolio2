@@ -1,18 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import Head from 'next/head'
 import Navbar from '../components/Navbar'
-import { LetterTile } from '../components/Tile'
-import { createTileEl, makeDraggable, tileTransform, randomTileAngle } from '../lib/tiles'
 import { getPlayImages } from '../lib/play-images'
-
-// Icon button: a single square tile, for the ✕ close button.
-function TileIconButton({ icon, alt, onClick, className, ...rest }) {
-  return (
-    <button onClick={onClick} className={`tile-icon-button ${className || ''}`} aria-label={alt} {...rest}>
-      <LetterTile letter={icon} rotate={0} />
-    </button>
-  )
-}
+import { getStickers } from '../lib/stickers-server'
+import { loadStickerSize, createStickerEl, makeStickerDraggable } from '../lib/stickers'
 
 const BRAND_PALETTE = ['#64CEBB', '#E6C7EB', '#F5C645', '#FE602F']
 const PLACEMENT_W = 1500, PLACEMENT_H = 1150 // scatter area within one tile
@@ -80,12 +71,10 @@ function buildThumb(item, accent, videoObserver) {
   return thumb
 }
 
-export default function Play({ playImages }) {
+export default function Play({ playImages, stickers }) {
   const vpRef = useRef(null)
   const worldRef = useRef(null)
   const itemsLayerRef = useRef(null)
-  const tileLayerRef = useRef(null)
-  const headingAnchorRef = useRef(null)
   const lightboxRef = useRef(null)
   const lightboxFrameRef = useRef(null)
   const [lightboxTitle, setLightboxTitle] = useState('')
@@ -94,10 +83,19 @@ export default function Play({ playImages }) {
   useEffect(() => {
     const vp = vpRef.current
     const world = worldRef.current
-    let panX = -400 + 72, panY = -300 + 64 // lands the heading at the viewport's top-left on load
+    // The canvas is zoomed up a little on big screens (1440px wide and below = 1:1)
+    // so everything stays comfortably sized on a 16" laptop or a monitor.
+    function computeScale() { return Math.max(1, Math.min(1.6, window.innerWidth / 1440)) }
+    let S = computeScale()
+    const navH = document.querySelector('.site-nav')?.offsetHeight || 64
+    // lands the heading just below the navbar, at the viewport's left, on load
+    let panX = 72 - 400 * S, panY = navH + 36 - 286 * S
 
     function applyPan() {
-      world.style.transform = `translate(${panX}px,${panY}px)`
+      world.style.transform = `translate(${panX}px,${panY}px) scale(${S})`
+      // the dot grid pans (and zooms) with the canvas
+      vp.style.setProperty('--play-dot', 28 * S + 'px')
+      vp.style.backgroundPosition = `${panX + 14 * S}px ${panY + 14 * S}px`
     }
 
     const homeCells = scatterPlace(playImages.length, true, 4000)
@@ -169,12 +167,57 @@ export default function Play({ playImages }) {
         })
         container.appendChild(el)
       })
+      renderStickersForTile(tx, ty, cells, container)
+    }
+
+    // ── Stickers scattered over the canvas, in the gaps between pieces ──
+    const dragged = new Map() // remembers where you moved a sticker to
+    const stickerSizes = {}
+    function renderStickersForTile(tx, ty, cells, container) {
+      if (!stickers || !stickers.length) return
+      const isHome = tx === 0 && ty === 0
+      const seedBase = 9000 + tx * 131 + ty * 977
+      const n = Math.min(stickers.length, 9)
+      const pad = 26
+      const boxes = cells.slice(0, playImages.length).map((c) => ({ x0: c.x - pad, y0: c.y - pad, x1: c.x + ITEM_W + pad, y1: c.y + ITEM_H + 36 + pad }))
+      if (isHome) boxes.push({ x0: KEEP_OUT.x0 - 40, y0: KEEP_OUT.y0 - 60, x1: KEEP_OUT.x1 + 40, y1: KEEP_OUT.y1 + 20 })
+      const placedBoxes = []
+      const offX = tx * TILE_X, offY = ty * TILE_Y
+      // a stable pick of which stickers appear in this tile
+      const order = stickers.map((src, i) => ({ src, k: seededRandom(seedBase + i * 7.7) })).sort((a, b) => a.k - b.k)
+      for (let i = 0; i < n; i++) {
+        const src = order[i].src
+        const size = stickerSizes[src] || { w: 1, h: 1 }
+        if (size.broken) continue
+        const aspect = size.w / size.h
+        const L = 70 + seededRandom(seedBase + i * 3.1) * 40
+        const w = aspect >= 1 ? L : L * aspect
+        const h = aspect >= 1 ? L / aspect : L
+        const rot = (seededRandom(seedBase + i * 5.3) - 0.5) * 32
+        const bw = Math.max(w, h) * 1.15
+        for (let attempt = 0; attempt < 80; attempt++) {
+          const cx = -125 + seededRandom(seedBase + i * 11 + attempt * 1.7) * (PLACEMENT_W + 250)
+          const cy = -125 + seededRandom(seedBase + i * 13 + attempt * 2.3) * (PLACEMENT_H + 250)
+          const box = { x0: cx - bw / 2, y0: cy - bw / 2, x1: cx + bw / 2, y1: cy + bw / 2 }
+          const hit = (b) => box.x0 < b.x1 && box.x1 > b.x0 && box.y0 < b.y1 && box.y1 > b.y0
+          if (boxes.some(hit) || placedBoxes.some(hit)) continue
+          placedBoxes.push(box)
+          const key = `${tx},${ty},${i}`
+          const el = createStickerEl({ src, w, h, cx: offX + cx, cy: offY + cy, rot })
+          const saved = dragged.get(key)
+          if (saved) { el.style.left = saved.l; el.style.top = saved.t }
+          makeStickerDraggable(el, () => S, (node) => dragged.set(key, { l: node.style.left, t: node.style.top }))
+          container.appendChild(el)
+          requestAnimationFrame(() => el.classList.add('placed'))
+          break
+        }
+      }
     }
 
     let lastCenterTX = null, lastCenterTY = null
     function renderTiles() {
-      const centerTX = Math.round(-panX / TILE_X)
-      const centerTY = Math.round(-panY / TILE_Y)
+      const centerTX = Math.round(-panX / (TILE_X * S))
+      const centerTY = Math.round(-panY / (TILE_Y * S))
       lastCenterTX = centerTX; lastCenterTY = centerTY
       const layer = itemsLayerRef.current
       layer.innerHTML = ''
@@ -185,8 +228,8 @@ export default function Play({ playImages }) {
       }
     }
     function maybeRetile() {
-      const centerTX = Math.round(-panX / TILE_X)
-      const centerTY = Math.round(-panY / TILE_Y)
+      const centerTX = Math.round(-panX / (TILE_X * S))
+      const centerTY = Math.round(-panY / (TILE_Y * S))
       if (centerTX !== lastCenterTX || centerTY !== lastCenterTY) renderTiles()
     }
 
@@ -223,51 +266,29 @@ export default function Play({ playImages }) {
     window.addEventListener('pointerup', onPointerUp)
     vp.addEventListener('wheel', onWheel, { passive: false })
 
-    // PLAY heading tiles — placed directly in world-space (not viewport
-    // space), so they pan along with everything else, into a tile-layer
-    // that lives inside canvas-world rather than the page-level one.
-    const anchor = headingAnchorRef.current
-    const layer = tileLayerRef.current
-    const word = 'PLAY'
-    const tileSize = 56, gap = 8
-    const anchorStyle = getComputedStyle(anchor)
-    const ax = parseFloat(anchorStyle.left) || 520
-    const ay = parseFloat(anchorStyle.top) || 460
-    const headingCleanups = []
-    for (let i = 0; i < word.length; i++) {
-      const angle = randomTileAngle()
-      const tile = createTileEl(word[i], angle, 'play-heading')
-      const x = ax + i * (tileSize + gap)
-      const y = ay
-      tile.style.width = tileSize + 'px'
-      tile.style.height = tileSize + 'px'
-      tile.style.fontSize = (tileSize * 0.52) + 'px'
-      tile.style.left = x + 'px'
-      tile.style.top = y + 'px'
-      tile.style.opacity = '0'
-      tile.style.transform = tileTransform(angle, .4)
-      layer.appendChild(tile)
-      const cleanupDrag = makeDraggable(tile)
-      const delay = 200 + i * 70
-      const t = setTimeout(() => {
-        tile.style.opacity = '1'
-        tile.style.transform = tileTransform(angle, 1)
-      }, delay)
-      headingCleanups.push(() => { clearTimeout(t); cleanupDrag(); tile.remove() })
+    function onResize() {
+      S = computeScale()
+      applyPan()
+      renderTiles()
     }
+    window.addEventListener('resize', onResize)
 
     applyPan()
-    renderTiles()
+    let cancelled = false
+    Promise.all((stickers || []).map((src) => loadStickerSize(src).then((r) => { stickerSizes[src] = r }))).then(() => {
+      if (!cancelled) renderTiles()
+    })
 
     return () => {
+      cancelled = true
+      window.removeEventListener('resize', onResize)
       vp.removeEventListener('pointerdown', onPointerDown)
       window.removeEventListener('pointermove', onPointerMove)
       window.removeEventListener('pointerup', onPointerUp)
       vp.removeEventListener('wheel', onWheel)
-      headingCleanups.forEach((fn) => fn())
       videoObserver?.disconnect()
     }
-  }, [playImages])
+  }, [playImages, stickers])
 
   function closeLightbox() {
     lightboxRef.current.classList.remove('open')
@@ -291,11 +312,10 @@ export default function Play({ playImages }) {
       <Navbar />
       <div className="canvas-viewport" ref={vpRef}>
         <div className="canvas-world" ref={worldRef}>
-          <div className="play-heading-anchor" ref={headingAnchorRef} />
+          <h1 className="play-heading">Play</h1>
           <p className="play-subtitle">bits and bobs and gleebs and globs of my free time</p>
           <p className="play-hint">scroll or drag to move!</p>
           <div ref={itemsLayerRef} />
-          <div className="tile-layer" ref={tileLayerRef} />
         </div>
       </div>
 
@@ -307,7 +327,7 @@ export default function Play({ playImages }) {
             {lightboxDescription && <p className="lightbox-description">{lightboxDescription}</p>}
           </div>
         </div>
-        <TileIconButton icon="✕" alt="Close" onClick={closeLightbox} className="lightbox-close tile-icon-button-dark" />
+        <button className="btn btn--close lightbox-close" aria-label="Close" onClick={closeLightbox}>✕</button>
       </div>
     </>
   )
@@ -315,5 +335,6 @@ export default function Play({ playImages }) {
 
 export async function getStaticProps() {
   const playImages = getPlayImages()
-  return { props: { playImages } }
+  const stickers = getStickers()
+  return { props: { playImages, stickers } }
 }

@@ -16,8 +16,9 @@ module.exports = {
         'accent-yellow': '#F5C645',
       },
       fontFamily: {
-        garamond: ['"EB Garamond"', 'serif'],
-        inter:    ['Inter', 'sans-serif'],
+        satisfy: ['Satisfy', 'cursive'],
+        nunito:  ['Nunito', 'sans-serif'],
+        ptsans:  ['"PT Sans"', 'sans-serif'],
       },
     },
   },
