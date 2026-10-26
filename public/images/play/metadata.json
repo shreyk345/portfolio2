@@ -54,5 +54,9 @@
   "IMG_5421": {
     "title": "Snakes In Our House",
     "description": "This visual piece is built from a database of serial killers and their victims. The piece reminds everyone that behind the stories of these serial killers, is an endless count of real people whose lives are torn apart by particularly cruel acts of violence."
+  },
+  "Starball": {
+    "title": "Starball",
+    "description": "This TouchDesigner project creates a generative, starball of fire using procedural visuals and animated textures. I built a node-based visual system using noise and displacement to distort shapes and create organic movement."
   }
 }
